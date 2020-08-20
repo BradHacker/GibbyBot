@@ -181,7 +181,15 @@ client.on('message', msg => {
       })
     }
     if (/uptime/i.test(msg.toString())) {
-      
+      let formData = new FormData();
+      formData.append('api_key', process.env.UPTIME_API_KEY);
+      formData.append('logs', '1');
+      return fetch(`https://api.uptimerobot.com/v2/getMonitors`, { method: 'post', body: formData }).then(response => response.json()).then(data => {
+        msg.channel.send(`I've been up for ${data.monitors[0].logs.filter(l => l.type === 2)[0].duration / 3600} hours`)
+      }).catch(err => {
+        console.error(err)
+        return msg.reply('there was an issue retrieving the data, sorry...')
+      })
     }
     return prefs.callouts ? msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
   }
