@@ -1,0 +1,11 @@
+I hear you need help. here's how you can pray to me:
+
+**KEYWORDS (All messages must include the word Gibby)**
+*commas mean need all, slash means either*
+**help**                                 - displays this message
+**[look at/save], meme** - saves your meme to gibby's memory (can be captioned by adding \"it's titled *insert caption here*\")
+**gimme, meme**               - gives you a random meme from gibby's memory
+**quote**                               - gives you a random gibby quote
+**inspirational, quote**      - gives you an AI generated inspirational quote
+**chat**                                 - use this to chat with gibby (ie. `gibby chat how are you feeling?`)
+**rap for me**                      - gibby will generate you a rap
