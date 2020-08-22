@@ -1,5 +1,7 @@
 # Gibby Bot
 
+Just a [discord.js](https://discord.js.org/) bot for the RIT Carlton Gibson Hall discord server. He does all kinds of things... and of course he's Gibby from iCarly.
+
 ## Help
 
 *anyone using the word "bucket" will have their bucket filled*
