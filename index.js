@@ -1,26 +1,52 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const fs = require('fs');
+const requestIp = require('request-ip');
+const bodyParser = require('body-parser');
 
+app.use(requestIp.mw());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.static('res'))
 
 app.get('/', (req, res) => res.sendFile('index.html', { root: __dirname }))
+app.get('/ping', (req, res) => res.send('ping success'))
+app.get('/visitors', (req, res) => {
+  visitors = JSON.parse(fs.readFileSync("visitors.json"));
+  visitor = {};
+  visitorExists = false;
+  if (visitors[req.clientIp.replace(/\./g, '')]) {
+    visitor = visitors[req.clientIp.replace(/\./g, '')];
+    visitorExists = true;
+  }
+  res.json({ visitor, visitorExists, visitorCount: Object.keys(visitors).length });
+})
+app.post('/visitors', (req, res) => {
+  let visitors = JSON.parse(fs.readFileSync("visitors.json"));
+  visitors[`${req.clientIp.replace(/\./g, '')}`] = req.body.name.trim();
+  fs.writeFile("visitors.json", JSON.stringify(visitors, null, 2), (err) => {
+    if (err) return res.status(500).json(err);
+    return res.status(200).send();
+  })
+})
 
 app.listen(port, () => console.log(`Gibby bot is listening on ${port}`))
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const fs = require('fs')
 const UTIL = require('./util')
 const fetch = require('node-fetch');
 var FormData = require('form-data');
 
-let isSleeping = false;
-
 const quotes = require('./quotes.json');
 console.log("Quotes are loaded");
-const prefs = require('./prefs.json')
+const prefs = require('./prefs.json');
 console.log("Prefs are loaded");
+const magic8ball = require('./magic8ball.json');
+console.log("Magic 8 Ball are loaded");
+const sleep = require('./sleep.json');
+console.log("Magic 8 Ball are loaded");
 
 if (!fs.existsSync('memes.json')) fs.writeFileSync("memes.json", "[]");
 
@@ -36,7 +62,7 @@ client.on('ready', () => {
   let channel = client.channels.cache.find(channel => channel.name === (prefs.testMode ? 'gibby-test' : prefs.mainChannel))
   if (channel) {
     shouldSleep(channel);
-    channel.send(isSleeping ? prefs.sleepMessage : prefs.awakeMessage).catch(err => console.error(err))
+    // channel.send(isSleeping ? prefs.sleepMessage : prefs.awakeMessage).catch(err => console.error(err))
     setInterval(() => shouldSleep(channel), 300000);
   }
   else console.error("couldn't find main channel")
@@ -48,16 +74,21 @@ client.on('error', err => {
 
 const shouldSleep = (channel) => {
   const hour = new Date().getHours();
-  if (hour > 1 && hour < 9 && !isSleeping) {
-    isSleeping = true;
-    channel.send(prefs.sleepMessage).catch(err => console.error(err))
+  if (hour > 1 && hour < 9 && !sleep.isSleeping) {
+    sleep.isSleeping = true;
+    if (!sleep.sentSleepMessage) channel.send(prefs.sleepMessage).catch(err => console.error(err))
+    sleep.sentSleepMessage = true;
     return;
   }
-  if (hour > 9 && isSleeping) {
-    isSleeping = false;
+  if (hour > 9 && sleep.isSleeping) {
+    sleep.isSleeping = false;
+    sleep.entSleepMessage = false;
     channel.send(prefs.awakeMessage).catch(err => console.error(err))
     return;
   }
+  fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
+    if (err) console.error('couldn\'t save sleep data')
+  });
 }
 
 Discord.GuildMember.prototype.isAdmin = function() {
@@ -67,7 +98,7 @@ Discord.GuildMember.prototype.isAdmin = function() {
 }
 
 client.on('guildMemberAdd', member => {
-  if (isSleeping) return;
+  if (sleep.isSleeping) return;
   // Send the message to a designated channel on a server:
   let channel = client.channels.cache.find(channel => channel.name === prefs.mainChannel)
   if (!channel) return;
@@ -78,10 +109,10 @@ client.on('message', msg => {
   if (msg.author.tag === client.user.tag) return;
   if (prefs.excludedChannels.filter(c => c === msg.channel.name).length > 0) return;
 
-  if (/bucket/i.test(msg.toString()) && !isSleeping) msg.react('🥣')
+  if (/bucket/i.test(msg.toString()) && !sleep.isSleeping) msg.react('🥣')
 
   if (/gibby/i.test(msg.toString())) {
-    if (isSleeping) return msg.channel.send('💤');
+    if (sleep.isSleeping) return msg.channel.send('💤');
     if (/chat/i.test(msg.toString())) {
       let lineBegin = msg.toString().indexOf('gibby chat') + 5;
       if (lineBegin < 0) return msg.reply('pls use `gibby chat` before your message to chat with me')
@@ -101,10 +132,6 @@ client.on('message', msg => {
     if (prefs.testMode) {
       if (msg.channel.name !== 'gibby-test') return msg.reply("I'm in test mode right now, sorry for the inconvenience");
     }
-    if (/help/i.test(msg.toString())) {
-      let helpText = fs.readFileSync("helpText.txt", 'utf8');
-      return msg.channel.send(helpText);
-    }
     if (/preferences/i.test(msg.toString()) && msg.member.isAdmin()) {
       if (/awakeMessage/i.test(msg.toString())) {
         prefs.awakeMessage = msg.toString().slice(msg.toString().indexOf('awakeMessage') + 12);
@@ -116,13 +143,18 @@ client.on('message', msg => {
       }
       if (/addQuote/i.test(msg.toString())) {
         let newQuote = msg.toString().slice(msg.toString().indexOf('addQuote') + 8);
-        quotes.push(newQuote)
+        quotes.push(newQuote.trim())
         return fs.writeFile("quotes.json", JSON.stringify(quotes, null, 2), () => msg.reply(`okay I'll remember your quote "${newQuote}"`))
       }
       if (/mainChannel/i.test(msg.toString())) {
         let newChannel = msg.toString().slice(msg.toString().indexOf('mainChannel') + 11)
         prefs.mainChannel = newChannel.trim();
         return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`Preferences saved. Main channel is now #${prefs.mainChannel}`))
+      }
+      if (/addMagic8Ball/i.test(msg.toString())) {
+        let newQuote = msg.toString().slice(msg.toString().indexOf('addQuote') + 8);
+        quotes.push(newQuote.trim())
+        return fs.writeFile("quotes.json", JSON.stringify(quotes, null, 2), () => msg.reply(`okay I'll remember your quote "${newQuote}"`))
       }
     }
     if (/quote/i.test(msg.toString())) {
@@ -190,6 +222,13 @@ client.on('message', msg => {
         console.error(err)
         return msg.reply('there was an issue retrieving the data, sorry...')
       })
+    }
+    if (/magic 8 ball/i.test(msg.toString())) {
+      return msg.reply(magic8ball[Math.floor(Math.random() * magic8ball.length)])
+    }
+    if (/help/i.test(msg.toString())) {
+      let helpText = fs.readFileSync("helpText.txt", 'utf8');
+      return msg.channel.send(helpText);
     }
     return prefs.callouts ? msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
   }

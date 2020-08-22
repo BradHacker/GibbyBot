@@ -1,4 +1,6 @@
-I hear you need help. here's how you can pray to me:
+# Gibby Bot
+
+## Help
 
 *anyone using the word "bucket" will have their bucket filled*
 
@@ -20,3 +22,29 @@ I hear you need help. here's how you can pray to me:
 **inspirational, quote** - gives you an AI generated inspirational quote
 **chat** - use this to chat with gibby (ie. `gibby chat how are you feeling?`)
 **rap for me** - gibby will generate you a rap
+
+## Changelog
+
+### v 0.3
+- Added Gibby sleep functionality (Sleeps from 10pm-6am EST)
+- Added Magic 8 Ball repsonses
+- Added Gibby's haven visitor saving
+
+### v 0.2
+- Added uptime
+
+### v 0.1
+- Gibby recognizes his name
+- Added meme saving/viewing
+- Added bucket filling
+- Added chatbot functionality
+- Added blessings
+- Added quotes
+- Added test mode
+- Added help message
+- Added preferences editing for admins
+- Added `home` response
+- Added `thank you/thanks` response
+- Added `dame da ne` response
+- Added `covid` response
+- Added `rap for me` response

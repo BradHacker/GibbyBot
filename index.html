@@ -20,7 +20,7 @@
         width: 50%;
       }
 
-      div {
+      .gibby-container {
         width: 50%;
         background: white;
         padding: 1rem;
@@ -28,12 +28,112 @@
         font-size: 3rem;
         box-shadow: 5px 5px 8px 4px rgba(0,0,0,0.75);
       }
+
+      #visitor-form {
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      input {
+        width: 80%;
+        height: 2rem;
+        border-radius: 0.25rem 0 0 0.25rem;
+        margin: 0.5rem 0rem;
+        padding: 0.25rem 0.5rem;
+        box-sizing: border-box;
+        border: 1px solid black;
+        border-right: none;
+      }
+
+      input:focus, button:focus {
+        outline: none;
+      }
+      
+      button {
+        width: 20%;
+        height: 2rem;
+        border-radius: 0 0.25rem 0.25rem 0;
+        border: 1px solid black;
+        border-left: none;
+        background-color: #ddd;
+        transition: background-color 0.1s ease-in-out;
+      }
+
+      button:hover {
+        background-color: #aaa;
+      }
+
+      #visitors {
+        font-size: 1.5rem;
+      }
     </style>
   </head>
   <body>
     <img src="gibbythink.png" alt="Gibby"/>
     <div class="gibby-container">
       You've found Gibby's Haven.
+      <br/>
+      <span id="visitors"></span>
+      <div id="visitor-form">
+        <span id="error">There was an error submitting your request. Contact support<br/></span>
+        Welcome weary traveller, please tell me your name:
+        <form onSubmit="submitVisitorForm(event)">
+          <input type="text" id="name" placeholder="Your name, my liege..." required/>
+          <button type='submit'>Submit</button>
+        </form>
+      </div>
     </div>
+    <script type="text/javascript">
+      let visitorsDOM = document.getElementById('visitors');
+      let formDOM = document.getElementById('visitor-form');
+      let errorDOM = document.getElementById('error');
+      errorDOM.style.display = 'none'
+      getVisitor();
+      
+      function getVisitor() {
+        hideForm();
+        fetch('/visitors').then(response => response.json()).then(data => {
+          if (data.visitorExists) {
+            visitorsDOM.innerHTML = `Hello <span id="visitorName">${data.visitor}</span>, we've had ${data.visitorCount} visitors.`
+            document.getElementById('visitorName').style.color = randomColors();
+          }
+          else showForm();
+        })
+      }
+
+      function hideForm() {
+        formDOM.style.display = 'none'
+      }
+      function showForm() {
+        formDOM.style.display = 'block'
+      }
+
+      function submitVisitorForm(e) {
+        e.preventDefault();
+        let { value } = e.target.name;
+        fetch('/visitors', {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: value }),
+        }).then(response => {
+          if (response.status === 200) return getVisitor();
+          else errorDOM.style.display = 'inline-block'
+        })
+      }
+
+      function randomColors() {
+        let color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        return color;
+      }
+    </script>
   </body>
 </html>
