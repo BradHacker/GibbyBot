@@ -27,6 +27,10 @@
         text-align: center;
         font-size: 3rem;
         box-shadow: 5px 5px 8px 4px rgba(0,0,0,0.75);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
 
       #visitor-form {
@@ -72,6 +76,15 @@
       #visitors {
         font-size: 1.5rem;
       }
+
+      #footer {
+        font-size: 0.75rem;
+        margin: 0.25rem;
+      }
+
+      a:visited {
+        color: blue;
+      }
     </style>
   </head>
   <body>
@@ -88,6 +101,7 @@
           <button type='submit'>Submit</button>
         </form>
       </div>
+      <span id="footer">View my source code and changelog <a href="https://github.com/BradHacker/GibbyBot/">here</a></span>
     </div>
     <script type="text/javascript">
       let visitorsDOM = document.getElementById('visitors');
