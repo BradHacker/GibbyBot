@@ -27,6 +27,13 @@ Just a [discord.js](https://discord.js.org/) bot for the RIT Carlton Gibson Hall
 
 ## Changelog
 
+### v 0.4
+- Add die rolling of *xxdxxx*
+- Add live dining locations with open/close status
+- Add GAN generated artwork
+- Add live RIT COVID-19 stats
+- Add the No No List
+
 ### v 0.3
 - Added Gibby sleep functionality (Sleeps from 10pm-6am EST)
 - Added Magic 8 Ball repsonses

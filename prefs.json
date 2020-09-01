@@ -1,6 +1,7 @@
 {
   "excludedChannels": [
-    "gibby"
+    "gibby",
+    "announcements"
   ],
   "mainChannel": "general",
   "awakeMessage": "My Giblets, praise me for I have awoken from my slumber",
@@ -12,5 +13,6 @@
   "helpText": "I hear you need help. here's how you can pray to me:\n\n**KEYWORDS (All messages must include the word Gibby)**\n*commas mean need all, slash means either*\nhelp - displays this message\n[look at/save], meme - saves your meme to gibby's memory (can be captioned by adding \"it's titled *insert caption here*\")\ngimme, meme - gives you a random meme from gibby's memory",
   "welcomeMessage": "Welcome my child",
   "callouts": false,
-  "testMode": false
+  "testMode": false,
+  "noNoList": []
 }

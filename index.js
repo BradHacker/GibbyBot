@@ -2,29 +2,42 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const fs = require('fs');
-const requestIp = require('request-ip');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
+const btoa = require('btoa');
 
-app.use(requestIp.mw());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static('res'))
 
 app.get('/', (req, res) => res.sendFile('index.html', { root: __dirname }))
-app.get('/ping', (req, res) => res.send('ping success'))
+app.get('/ping', (req, res) => {
+  fs.writeFile("latestPing.json", JSON.stringify({
+    pingDateTime: new Date().toISOString()
+  }, null, 2), (err) => {
+    if (err) return res.status(500).send("Error writing to file");
+    return res.send('ping success');
+  });
+})
 app.get('/visitors', (req, res) => {
   visitors = JSON.parse(fs.readFileSync("visitors.json"));
   visitor = {};
   visitorExists = false;
-  if (visitors[req.clientIp.replace(/\./g, '')]) {
-    visitor = visitors[req.clientIp.replace(/\./g, '')];
+  if (req.cookies.guid && visitors[req.cookies.guid]) {
+    visitor = visitors[req.cookies.guid];
     visitorExists = true;
   }
-  res.json({ visitor, visitorExists, visitorCount: Object.keys(visitors).length });
+  res.json({ visitor, visitorExists, visitorCount: Object.keys(visitors).length, visitors: Object.keys(visitors).map(ip => visitors[ip]) });
 })
 app.post('/visitors', (req, res) => {
   let visitors = JSON.parse(fs.readFileSync("visitors.json"));
-  visitors[`${req.clientIp.replace(/\./g, '')}`] = req.body.name.trim();
+  let guid = req.cookies.guid || '';
+  while (guid === '' || visitors[guid]) {
+    guid = btoa(Math.random().toString(36).substring(12));
+  }
+  res.cookie('guid', guid);
+  visitors[guid] = req.body.name.trim();
   fs.writeFile("visitors.json", JSON.stringify(visitors, null, 2), (err) => {
     if (err) return res.status(500).json(err);
     return res.status(200).send();
@@ -37,7 +50,10 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const UTIL = require('./util')
 const fetch = require('node-fetch');
-var FormData = require('form-data');
+const FormData = require('form-data');
+const arrayBufferToBuffer = require('arraybuffer-to-buffer');
+const cheerio = require('cheerio');
+const moment = require('moment');
 
 const quotes = require('./quotes.json');
 console.log("Quotes are loaded");
@@ -46,7 +62,16 @@ console.log("Prefs are loaded");
 const magic8ball = require('./magic8ball.json');
 console.log("Magic 8 Ball are loaded");
 const sleep = require('./sleep.json');
-console.log("Magic 8 Ball are loaded");
+console.log("Sleep info is loaded");
+const userData = require('./data/user-data.json');
+console.log("User Data is loaded");
+
+const getDiningLocationsEmbed = require('./dining');
+console.log("Dining is loaded");
+const Poker = require('./commands/poker');
+console.log("Poker is loaded")
+
+const MESSAGE_BATCH_SIZE = 100;
 
 if (!fs.existsSync('memes.json')) fs.writeFileSync("memes.json", "[]");
 
@@ -76,19 +101,24 @@ const shouldSleep = (channel) => {
   const hour = new Date().getHours();
   if (hour > 1 && hour < 9 && !sleep.isSleeping) {
     sleep.isSleeping = true;
+    sleep.sentAwakeMessage = false;
     if (!sleep.sentSleepMessage) channel.send(prefs.sleepMessage).catch(err => console.error(err))
     sleep.sentSleepMessage = true;
+    fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
+      if (err) console.error('couldn\'t save sleep data')
+    });
     return;
   }
   if (hour > 9 && sleep.isSleeping) {
     sleep.isSleeping = false;
-    sleep.entSleepMessage = false;
-    channel.send(prefs.awakeMessage).catch(err => console.error(err))
+    sleep.sentSleepMessage = false;
+    if (!sleep.sentAwakeMessage) channel.send(prefs.awakeMessage).catch(err => console.error(err))
+    sleep.sentAwakeMessage = true;
+    fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
+      if (err) console.error('couldn\'t save sleep data')
+    });
     return;
   }
-  fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
-    if (err) console.error('couldn\'t save sleep data')
-  });
 }
 
 Discord.GuildMember.prototype.isAdmin = function() {
@@ -105,14 +135,45 @@ client.on('guildMemberAdd', member => {
   channel.send(`**${member.user.username}**, ${prefs.welcomeMessage}`)
 });
 
+let messageBatchTotal = 0;
+
 client.on('message', msg => {
   if (msg.author.tag === client.user.tag) return;
   if (prefs.excludedChannels.filter(c => c === msg.channel.name).length > 0) return;
 
+  if (!userData[msg.author.id]) userData[msg.author.id] = {
+    nessagesSent: 0,
+    gibbyCommands: 0,
+    xp: 0,
+  }
+  if (prefs.noNoList.indexOf(msg.author.id) === -1) {
+    userData[msg.author.id].messagesSent++;
+    messageBatchTotal++;
+  }
+
+  if (msg.channel.name === 'trading-bot' && !/gibby/i.test(msg.toString()) && !/trading-post/i.test(msg.toString())) return msg.delete().then(null, err => console.error(err))
+
   if (/bucket/i.test(msg.toString()) && !sleep.isSleeping) msg.react('🥣')
 
   if (/gibby/i.test(msg.toString())) {
-    if (sleep.isSleeping) return msg.channel.send('💤');
+    if (prefs.noNoList.indexOf(msg.author.id) === -1) {
+      userData[msg.author.id].gibbyCommands++;
+      messageBatchTotal
+    }
+    if (sleep.isSleeping && msg.channel.name !== 'gibby-test') return msg.channel.send('💤');
+    if ((msg.channel.name === 'trading-bot' || msg.channel.name === 'gibby-test') && /trading-post/i.test(msg.toString())) {
+      const { handleTradingPostCommand } = require('./trading-post');
+      return handleTradingPostCommand(msg, client);
+    }
+    if (prefs.noNoList.indexOf(msg.author.id) >= 0 && msg.channel.name === 'general') {
+      if (/i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes/i.test(msg.toString())) {
+        prefs.noNoList.splice(prefs.noNoList.indexOf(msg.author.id), 1);
+        return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => {
+          return msg.reply(`I forgive you my child, take my blessing and go in peace.`).then(() => msg.react("✨"));
+        })
+      }
+      return msg.reply(`sorry bud, you're on the nono list ${client.emojis.cache.find(emoji => emoji.name === "gibby")}`)
+    }
     if (/chat/i.test(msg.toString())) {
       let lineBegin = msg.toString().indexOf('gibby chat') + 5;
       if (lineBegin < 0) return msg.reply('pls use `gibby chat` before your message to chat with me')
@@ -123,7 +184,7 @@ client.on('message', msg => {
         let textEnd = data.indexOf("</p>");
         let returnMsg = data.slice(textStart, textEnd);
         if (returnMsg.length > 2000) return msg.reply('well, i can\'t say anything...')
-        return msg.reply(returnMsg.replace('<br>','\n').replace('<b>','**').replace('</b>','**').replace('<em>','*').replace('</em>','*'));
+        return msg.reply(returnMsg.replace('<br>', '\n').replace('<b>', '**').replace('</b>', '**').replace('<em>', '*').replace('</em>', '*'));
       }).catch(err => {
         return console.error(err);
       })
@@ -131,6 +192,12 @@ client.on('message', msg => {
     if (/praise/i.test(msg.toString())) msg.react('✨')
     if (prefs.testMode) {
       if (msg.channel.name !== 'gibby-test') return msg.reply("I'm in test mode right now, sorry for the inconvenience");
+    }
+    if (/nono/ig.test(msg.toString()) && /list/ig.test(msg.toString()) && msg.member.isAdmin()) {
+      if (msg.mentions.users.size > 0) {
+        prefs.noNoList.push(msg.mentions.users.first().id);
+        return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`okay <@${msg.mentions.users.first().id}> is now on the No No List.`).then(() => msg.mentions.users.first().send("**You have committed war crimes upon the land of Gibby**\n in order to be forgiven, you must recite this prayer to everyone in #general:\n*i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes*")))
+      }
     }
     if (/preferences/i.test(msg.toString()) && msg.member.isAdmin()) {
       if (/awakeMessage/i.test(msg.toString())) {
@@ -142,7 +209,7 @@ client.on('message', msg => {
         return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`Preferences saved. Callouts are now ${prefs.callouts ? 'on' : 'off'}`))
       }
       if (/addQuote/i.test(msg.toString())) {
-        let newQuote = msg.toString().slice(msg.toString().indexOf('addQuote') + 8);
+        let newQuote = msg.toString().slice(msg.toString().indexOf('addQuote') + 8).trim();
         quotes.push(newQuote.trim())
         return fs.writeFile("quotes.json", JSON.stringify(quotes, null, 2), () => msg.reply(`okay I'll remember your quote "${newQuote}"`))
       }
@@ -168,7 +235,7 @@ client.on('message', msg => {
     }
     if (/meme/i.test(msg.toString())) {
       if (/save/i.test(msg.toString()) || /look at/i.test(msg.toString())) {
-        if (msg.attachments.array().length === 0) {
+        if (msg.attachments.array().length === 0 && !/(https:\/\/(www.)?youtube)|(https:\/\/(www.)?youtu.be)/ig.test(msg.toString())) {
           return msg.channel.messages.fetch({ limit: 10 }).then(messages => {
             let prevMessage = messages.filter(m => m.attachments.array().length > 0).array()[0];
             if (!prevMessage) {
@@ -203,10 +270,47 @@ client.on('message', msg => {
     if (/dame da ne/i.test(msg.toString())) {
       return msg.channel.send("This is my word...", { files: ["https://cdn.discordapp.com/attachments/728321787263189097/744944328799027270/Gibby_Mitai.mp4"] })
     }
+    if (/(covid cases)|(scare me)/i.test(msg.toString())) {
+      return fetch('https://www.rit.edu/ready/dashboard')
+        .then((response) => response.text())
+        .then((doc) => {
+          const cheerio = require('cheerio');
+          const $ = cheerio.load(doc);
+          let cases = $('.card-header.position-relative.font-weight-normal');
+          let covidLevel = $(
+            'a',
+            '.d-block.d-md-inline-block.bg-black.py-2.px-3.my-md-n2.mx-n2.mx-md-0.text-white.font-weight-bold'
+          )[0].children[0].data.trim();
+          let dataDate = $('strong', 'p:contains("This dashboard was last updated on")')
+          let lastUpdatedOn = moment(dataDate[0].children[0].data, 'dddd, MMMM DD, YYYY').format('MM-DD-YYYY');
+          let timeSpan = $('p:contains("New Positive Cases From Past")');
+          let timeSpanNum = parseInt(timeSpan[0].children[0].data.replace(/[^0-9\.]/g, ''), 10);
+          let covidEmbed = new Discord.MessageEmbed().setColor("#f5a142").setTitle('RIT COVID-19 Dashboard').setDescription(`Last Updated ${lastUpdatedOn}`).addFields(
+            {
+              name: 'RIT Covid',
+              value: covidLevel
+            },
+            {
+              name: "New Cases From The Past:",
+              value: `${timeSpanNum} Days`
+            },
+            {
+              name: 'New Student Cases',
+              value: cases[0].children[0].data.trim(),
+              inline: true
+            },
+            {
+              name: 'New Staff Cases',
+              value: cases[1].children[0].data.trim(),
+              inline: true
+            }).setTimestamp();
+          return msg.channel.send(covidEmbed);
+        });
+    }
     if (/covid/i.test(msg.toString())) {
       return msg.channel.send('Please remember to social distance and wear masks!')
     }
-    if(/rap for me/i.test(msg.toString())) {
+    if (/rap for me/i.test(msg.toString())) {
       msg.reply("Okay, give me a second to get set up...")
       return fetch('http://deepbeat.org/deepbeat.fcgi?l=en&nn=false&k=&m=multi&q=&q=&q=&q=&q=&q=&q=&q=').then(response => response.json()).then(data => {
         msg.channel.send(data.rhymes.map(r => r.line).join('\n') + '\n*drops the mic*')
@@ -226,12 +330,45 @@ client.on('message', msg => {
     if (/magic 8 ball/i.test(msg.toString())) {
       return msg.reply(magic8ball[Math.floor(Math.random() * magic8ball.length)])
     }
+    if (/roll [0-9]{1,2}d[0-9]{1,3}/i.test(msg.toString())) {
+      let dieIdentifierIndex = msg.toString().search(/[0-9]{1,3}d[0-9]{1,3}/gi);
+      let dieString = msg.toString().slice(dieIdentifierIndex);
+      dIndex = dieString.indexOf('d');
+      let numDie = parseInt(dieString.slice(0, dIndex));
+      let sideNum = parseInt(dieString.slice(dIndex + 1, Math.min(dIndex + 4, dieString.length)));
+      msg.channel.send(`okay I'm rolling ${numDie}d${sideNum}`);
+      let rolls = [];
+      for (let i = 0; i < numDie; i++) {
+        rolls[i] = Math.floor(Math.random() * sideNum) + 1;
+      }
+      return msg.reply(`you rolled ${rolls.join(', ')}`)
+    }
+    if (/(dining locations)|(im hungry)|(i'm hungry)/i.test(msg.toString())) {
+      // if (!msg.member.isAdmin() && msg.channel.name !== 'gibby-test') return msg.reply("the Dining Locations feature is currently under maintenence, sorry for the inconveinience")
+      return getDiningLocationsEmbed(msg).then(embed => msg.channel.send(embed), err => console.log(err));
+    }
+    if (/draw/i.test(msg.toString())) {
+      return fetch('https://thisartworkdoesnotexist.com/').then(response => response.arrayBuffer()).then(arrayBuffer => msg.reply('Okay I came up with this...', {
+        files: [arrayBufferToBuffer(arrayBuffer)]
+      }));
+    }
+    if (msg.channel.name === "poker") {
+      if (/join/i.test(msg.toString())) return Poker.joinGame(msg);
+      if (/leave/i.test(msg.toString())) return Poker.leaveGame(msg);
+    }
+    if (/fall/i.test(msg.toString())) {
+      return msg.channel.send({
+        files: ['./res/fall.gif']
+      })
+    }
     if (/help/i.test(msg.toString())) {
-      let helpText = fs.readFileSync("helpText.txt", 'utf8');
-      return msg.channel.send(helpText);
+      const helpEmbed = require('./help');
+      return msg.channel.send(helpEmbed);
     }
     return prefs.callouts ? msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
   }
+
+  if (messageBatchTotal >= MESSAGE_BATCH_SIZE) fs.writeFile("./data/user-data.json", JSON.stringify(userData, null, 2), (err) => err && console.error(err))
 })
 
 client.login(process.env.TOKEN);

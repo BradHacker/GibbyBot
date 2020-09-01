@@ -13,7 +13,8 @@
       }
 
       body {
-        background: linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)), url('background.jpg');
+        background: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url('background.jpg');
+        position: relative;
       }
 
       img {
@@ -85,9 +86,17 @@
       a:visited {
         color: blue;
       }
+
+      #nameCanvas {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+      }
     </style>
   </head>
   <body>
+    <canvas id="nameCanvas"></canvas>
     <img src="gibbythink.png" alt="Gibby"/>
     <div class="gibby-container">
       You've found Gibby's Haven.
@@ -109,6 +118,8 @@
       let errorDOM = document.getElementById('error');
       errorDOM.style.display = 'none'
       getVisitor();
+
+      let drewNames = false;
       
       function getVisitor() {
         hideForm();
@@ -118,6 +129,7 @@
             document.getElementById('visitorName').style.color = randomColors();
           }
           else showForm();
+          if (!drewNames) drawNames(data.visitors);
         })
       }
 
@@ -147,6 +159,20 @@
       function randomColors() {
         let color = '#' + Math.floor(Math.random() * 16777215).toString(16);
         return color;
+      }
+
+      function drawNames(nameList) {
+        const canvas = document.getElementById("nameCanvas");
+        canvas.width = document.body.clientWidth;
+        canvas.height = document.body.clientHeight;
+        let ctx = canvas.getContext("2d");
+        ctx.font = "30px Arial";
+        nameList.forEach(name => {
+          ctx.fillStyle = randomColors();
+          ctx.fillText(name, Math.random() * (canvas.width * 0.95) + (canvas.width * 0.025), Math.random() * (canvas.height * 0.8) + (canvas.height * 0.1));
+        })
+        
+        drewNames = true;
       }
     </script>
   </body>
