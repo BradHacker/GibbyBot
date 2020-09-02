@@ -1,8 +1,8 @@
 const fs = require('fs')
 const ytdl = require('ytdl-core');
-const Discord = require('discord.js')
+const Discord = require('discord.js');
 
-const saveMeme = (msg, memes, cmdMessage) => {
+const saveMeme = (msg, memes, cmdMessage, userData) => {
   let index = (cmdMessage ? cmdMessage : msg).toString().indexOf("it's titled");
   let cmdOffset = 12;
   if (index == -1) {
@@ -34,6 +34,8 @@ const saveMeme = (msg, memes, cmdMessage) => {
           return msg.client.channels.fetch('750137587376717925').then(c => c.send(new Discord.MessageAttachment("./temp.mp4")).then((m) => {
             fs.unlink("./temp.mp4", (err) => err && console.error("couldn't delete temp.mp4"))
             memes.push({ url: m.attachments.first().url, caption, submittedAt: new Date().toISOString() });
+            userData[msg.author.id].memesSubmitted++;
+            userData[msg.author.id].xp += 10;
             return fs.writeFile("memes.json", JSON.stringify(memes, null, 2), () => msg.reply(`okay I saved your meme titled: ${caption}.`))
           }))
         }
@@ -44,6 +46,8 @@ const saveMeme = (msg, memes, cmdMessage) => {
       // .then(m => m.delete().then(() => undefined).catch(console.error))
     }
   }
+  userData[msg.author.id].memesSubmitted++;
+  userData[msg.author.id].xp += 10;
   memes.push({ url: msg.attachments.first().url, caption, submittedAt: new Date().toISOString() });
   return fs.writeFile("memes.json", JSON.stringify(memes, null, 2), () => msg.reply(`okay I saved your meme titled: ${caption}.`))
 }

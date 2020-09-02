@@ -1,7 +1,8 @@
 {
   "excludedChannels": [
     "gibby",
-    "announcements"
+    "announcements",
+    "compliments"
   ],
   "mainChannel": "general",
   "awakeMessage": "My Giblets, praise me for I have awoken from my slumber",
@@ -14,5 +15,8 @@
   "welcomeMessage": "Welcome my child",
   "callouts": false,
   "testMode": false,
-  "noNoList": []
+  "noNoList": [
+    "204300442358775808"
+  ],
+  "battleMode": false
 }

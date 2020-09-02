@@ -18,7 +18,8 @@ const helpEmbed = new Discord.MessageEmbed()
     { name: "**rap for me**", value: "gibby will generate you a rap", inline: true },
     { name: "**quote**", value: "gives you a random gibby quote", inline: true },
     { name: "bucket", value: "gibby will fill your bucket", inline: true },
-    { name: "**help**", value: "displays this message", inline: true }
+    { name: "**help**", value: "displays this message", inline: true },
+    { name: "gimme my stats", value: "shows you your user stats" }
   )
   .setTimestamp()
 

@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
-const port = 80;
+const port = 3000;
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
 const btoa = require('btoa');
+const dotenv = require('dotenv');
+dotenv.config();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -102,7 +104,7 @@ const shouldSleep = (channel) => {
   if (hour > 1 && hour < 9 && !sleep.isSleeping) {
     sleep.isSleeping = true;
     sleep.sentAwakeMessage = false;
-    if (!sleep.sentSleepMessage) channel.send(prefs.sleepMessage).catch(err => console.error(err))
+    if (!sleep.sentSleepMessage) channel.send(prefs.battleMode ? "I shall not sleep, for we are still at war" : prefs.sleepMessage).catch(err => console.error(err))
     sleep.sentSleepMessage = true;
     fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
       if (err) console.error('couldn\'t save sleep data')
@@ -112,7 +114,7 @@ const shouldSleep = (channel) => {
   if (hour > 9 && sleep.isSleeping) {
     sleep.isSleeping = false;
     sleep.sentSleepMessage = false;
-    if (!sleep.sentAwakeMessage) channel.send(prefs.awakeMessage).catch(err => console.error(err))
+    if (!sleep.sentAwakeMessage) channel.send(prefs.battleMode ? "Good morning Giblets, reminder we're still at war" : prefs.awakeMessage).catch(err => console.error(err))
     sleep.sentAwakeMessage = true;
     fs.writeFile("sleep.json", JSON.stringify(sleep, null, 2), (err) => {
       if (err) console.error('couldn\'t save sleep data')
@@ -142,12 +144,14 @@ client.on('message', msg => {
   if (prefs.excludedChannels.filter(c => c === msg.channel.name).length > 0) return;
 
   if (!userData[msg.author.id]) userData[msg.author.id] = {
-    nessagesSent: 0,
+    messagesSent: 0,
     gibbyCommands: 0,
+    memesSubmitted: 0,
     xp: 0,
   }
   if (prefs.noNoList.indexOf(msg.author.id) === -1) {
     userData[msg.author.id].messagesSent++;
+    userData[msg.author.id].xp++;
     messageBatchTotal++;
   }
 
@@ -155,12 +159,27 @@ client.on('message', msg => {
 
   if (/bucket/i.test(msg.toString()) && !sleep.isSleeping) msg.react('🥣')
 
+  if (prefs.battleMode && msg.member.roles.cache.get("750526846990549022")) {
+    if (/gib/i.test(msg.toString())) {
+      return msg.reply("silence non-gibson scum").then(() => msg.delete().then(() => console.log("non-scum has been vanquished")).catch(console.error));
+    }
+    if (Math.random() < 0.05) {
+      return msg.reply("Just a friendly reminder that Gibson is better");
+    } else if (Math.random() < 0.5) {
+      return fetch('https://www.rappad.co/api/battles/random_insult').then(response => response.json()).then(insultData => msg.reply(insultData.insult))
+    }
+    if (/sol/i.test(msg.toString())) {
+      return msg.reply("sol sucks eggs").then(() => msg.delete().then(() => console.log("sol sucks eggs")).catch(console.error));
+    }
+  }
+
   if (/gibby/i.test(msg.toString())) {
     if (prefs.noNoList.indexOf(msg.author.id) === -1) {
       userData[msg.author.id].gibbyCommands++;
+      userData[msg.author.id].xp += 2;
       messageBatchTotal
     }
-    if (sleep.isSleeping && msg.channel.name !== 'gibby-test') return msg.channel.send('💤');
+    if (sleep.isSleeping && msg.channel.name !== 'gibby-test' && !prefs.battleMode) return msg.channel.send('💤');
     if ((msg.channel.name === 'trading-bot' || msg.channel.name === 'gibby-test') && /trading-post/i.test(msg.toString())) {
       const { handleTradingPostCommand } = require('./trading-post');
       return handleTradingPostCommand(msg, client);
@@ -200,6 +219,10 @@ client.on('message', msg => {
       }
     }
     if (/preferences/i.test(msg.toString()) && msg.member.isAdmin()) {
+      if (/battleMode/i.test(msg.toString())) {
+        prefs.battleMode = !prefs.battleMode;
+	return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`Okay battle mode is now ${prefs.battleMode ? 'ACTIVATED' : 'turned off'}`))
+      }
       if (/awakeMessage/i.test(msg.toString())) {
         prefs.awakeMessage = msg.toString().slice(msg.toString().indexOf('awakeMessage') + 12);
         return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply("Preferences saved."))
@@ -242,14 +265,14 @@ client.on('message', msg => {
               console.log
               return msg.reply("you need to include a meme for me to save tho")
             }
-            return UTIL.saveMeme(prevMessage, memes, msg);
+            return UTIL.saveMeme(prevMessage, memes, msg, userData);
           }).catch(err => {
             console.error(err);
             console.error("couldn't get message")
             return msg.reply("i couldn't grab your last message, sorry. try again later")
           })
         }
-        return UTIL.saveMeme(msg, memes);
+        return UTIL.saveMeme(msg, memes, null, userData);
       }
       if (/gimme/i.test(msg.toString())) {
         const randMeme = memes[Math.floor(Math.random() * memes.length)]
@@ -285,23 +308,23 @@ client.on('message', msg => {
           let lastUpdatedOn = moment(dataDate[0].children[0].data, 'dddd, MMMM DD, YYYY').format('MM-DD-YYYY');
           let timeSpan = $('p:contains("New Positive Cases From Past")');
           let timeSpanNum = parseInt(timeSpan[0].children[0].data.replace(/[^0-9\.]/g, ''), 10);
-          let covidEmbed = new Discord.MessageEmbed().setColor("#f5a142").setTitle('RIT COVID-19 Dashboard').setDescription(`Last Updated ${lastUpdatedOn}`).addFields(
+          let covidEmbed = new Discord.MessageEmbed().setColor("#f5a142").setTitle('RIT COVID-19 Dashboard').setDescription(`Since August 19th\nLast Updated ${lastUpdatedOn}`).addFields(
             {
-              name: 'RIT Covid',
+              name: 'RIT Covid Level',
               value: covidLevel
             },
+            //{
+            //  name: "New Cases From The Past:",
+            //  value: `${timeSpanNum} Days`
+            //},
             {
-              name: "New Cases From The Past:",
-              value: `${timeSpanNum} Days`
-            },
-            {
-              name: 'New Student Cases',
-              value: cases[0].children[0].data.trim(),
+              name: 'Student Cases',
+              value: cases[2].children[0].data.trim(),
               inline: true
             },
             {
-              name: 'New Staff Cases',
-              value: cases[1].children[0].data.trim(),
+              name: 'Staff Cases',
+              value: cases[3].children[0].data.trim(),
               inline: true
             }).setTimestamp();
           return msg.channel.send(covidEmbed);
@@ -325,7 +348,7 @@ client.on('message', msg => {
       }).catch(err => {
         console.error(err)
         return msg.reply('there was an issue retrieving the data, sorry...')
-      })
+       })
     }
     if (/magic 8 ball/i.test(msg.toString())) {
       return msg.reply(magic8ball[Math.floor(Math.random() * magic8ball.length)])
@@ -361,14 +384,38 @@ client.on('message', msg => {
         files: ['./res/fall.gif']
       })
     }
+    if (/(title ix violation)|(title 9 violation)/gi.test(msg.toString())) {
+      return msg.reply("I'm sorry i'll try to do better in the future");
+    }
+    if (/gimme my stats/i.test(msg.toString())) {
+      if (!userData[msg.author.id]) return msg.reply("Sorry looks like I don't have any of your data");
+      let statsEmbed = new Discord.MessageEmbed().setTitle(`${msg.member.displayName} Stats`);
+      statsEmbed.addField("Total Messages", userData[msg.author.id].messagesSent);
+      statsEmbed.addField("Gibby Commands", userData[msg.author.id].gibbyCommands);
+      statsEmbed.addField("XP", userData[msg.author.id].xp);
+      return msg.reply(statsEmbed);
+    }
+    if (/leaderboard/i.test(msg.toString())) {
+      let sortedUsers = Object.keys(userData).map(id => ({ ...userData[id], id })).sort((a, b) => b.xp - a.xp);
+      let leaderEmbed = new Discord.MessageEmbed().setTitle("Gibby XP Leaderboard").setColor("#f5a142");
+      sortedUsers.slice(0,5).forEach((user, i) => {
+        leaderEmbed.addField(`${i + 1}) ${msg.guild.members.cache.get(user.id).displayName}`, user.xp);
+      })
+      return msg.channel.send(leaderEmbed);
+    }
     if (/help/i.test(msg.toString())) {
       const helpEmbed = require('./help');
       return msg.channel.send(helpEmbed);
     }
-    return prefs.callouts ? msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
+    return prefs.callouts ?msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
   }
 
   if (messageBatchTotal >= MESSAGE_BATCH_SIZE) fs.writeFile("./data/user-data.json", JSON.stringify(userData, null, 2), (err) => err && console.error(err))
 })
 
 client.login(process.env.TOKEN);
+
+process.once('SIGTERM', () => {
+  fs.writeFileSync("./data/user-data.json", JSON.stringify(userData, null, 2), console.error);
+  process.exit(0);
+})

@@ -4,28 +4,16 @@ Just a [discord.js](https://discord.js.org/) bot for the RIT Carlton Gibson Hall
 
 ## Help
 
-*anyone using the word "bucket" will have their bucket filled*
-
-**KEYWORDS (All messages must include the word Gibby)**
-*commas mean need all, slash means either*
-
-***General***
-
-**help** - displays this message
-**[look at/save], meme** - saves your meme to gibby's memory (can be captioned by adding \"it's titled *insert caption here*\")
-**gimme, meme** - gives you a random meme from gibby's memory
-**quote** - gives you a random gibby quote
-**magic 8 ball** - ask gibby a question and he'll return a magic 8 ball response
-**[thanks/thank you]** - thank gibby
-**praise** - praise gibby and he will bless you
-
-***AI Sutff***
-
-**inspirational, quote** - gives you an AI generated inspirational quote
-**chat** - use this to chat with gibby (ie. `gibby chat how are you feeling?`)
-**rap for me** - gibby will generate you a rap
+For help just say `gibby help`
 
 ## Changelog
+
+### v 0.5
+- Add BATTLE MODE
+- Change Covid Cases to Total Cases since Aug. 19th
+- Add Title IX Violation Notice
+- Add user stats tracking
+- Add xp leaderboard
 
 ### v 0.4
 - Add die rolling of *xxdxxx*
