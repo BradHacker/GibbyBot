@@ -100,6 +100,10 @@ client.on('error', err => {
 })
 
 const shouldSleep = (channel) => {
+  if (prefs.forceAwake) {
+    console.log("force awake on");
+    return sleep.isSleeping = false;
+  }
   const hour = new Date().getHours();
   if (hour > 1 && hour < 9 && !sleep.isSleeping) {
     sleep.isSleeping = true;
@@ -149,9 +153,9 @@ client.on('message', msg => {
     memesSubmitted: 0,
     xp: 0,
   }
-  if (prefs.noNoList.indexOf(msg.author.id) === -1) {
+
+  if (prefs.noNoList.indexOf(msg.author.id) === -1 && prefs.permaNonoList.indexOf(msg.author.id) === -1) {
     userData[msg.author.id].messagesSent++;
-    userData[msg.author.id].xp++;
     messageBatchTotal++;
   }
 
@@ -174,24 +178,51 @@ client.on('message', msg => {
   }
 
   if (/gibby/i.test(msg.toString())) {
-    if (prefs.noNoList.indexOf(msg.author.id) === -1) {
-      userData[msg.author.id].gibbyCommands++;
-      userData[msg.author.id].xp += 2;
-      messageBatchTotal
+    if (prefs.testMode) {
+      if (msg.channel.name !== 'gibby-test') return msg.reply("I'm in test mode right now, sorry for the inconvenience");
     }
-    if (sleep.isSleeping && msg.channel.name !== 'gibby-test' && !prefs.battleMode) return msg.channel.send('💤');
-    if ((msg.channel.name === 'trading-bot' || msg.channel.name === 'gibby-test') && /trading-post/i.test(msg.toString())) {
-      const { handleTradingPostCommand } = require('./trading-post');
-      return handleTradingPostCommand(msg, client);
-    }
-    if (prefs.noNoList.indexOf(msg.author.id) >= 0 && msg.channel.name === 'general') {
-      if (/i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes/i.test(msg.toString())) {
+
+    if (prefs.noNoList.indexOf(msg.author.id) >= 0 || prefs.permaNonoList.indexOf(msg.author.id) >= 0) {
+      if (prefs.noNoList.indexOf(msg.author.id) && msg.channel.name === 'general' && "*i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes*" === msg.toString()) {
         prefs.noNoList.splice(prefs.noNoList.indexOf(msg.author.id), 1);
         return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => {
           return msg.reply(`I forgive you my child, take my blessing and go in peace.`).then(() => msg.react("✨"));
         })
       }
       return msg.reply(`sorry bud, you're on the nono list ${client.emojis.cache.find(emoji => emoji.name === "gibby")}`)
+    }
+    if (prefs.noNoList.indexOf(msg.author.id) === -1 && prefs.permaNonoList.indexOf(msg.author.id) === -1) {
+      if (Date.now().valueOf() - new Date(userData[msg.author.id].commandIntStart).valueOf() > 60000 || !userData[msg.author.id].commandIntStart) {
+        userData[msg.author.id].commandIntStart = Date.now().valueOf();
+        userData[msg.author.id].commandsSinceInt = 0;
+      }
+      userData[msg.author.id].gibbyCommands++;
+      userData[msg.author.id].commandsSinceInt++;
+      if (userData[msg.author.id].commandsSinceInt > 10) {
+        msg.reply("careful there bud, you're getting awfully close to the rate limit. Chill out for a min bro... you don't wanna get on the perma nono list for committing war crimes 5 separate times do you?");
+      }
+      if (userData[msg.author.id].commandsSinceInt > 12) { 
+        prefs.noNoList.push(msg.author.id);
+        if (!userData[msg.author.id].nonoListCount) userData[msg.author.id].nonoListCount = 0;
+        userData[msg.author.id].nonoListCount++;
+        if (userData[msg.author.id].nonoListCount >= 5) {
+          prefs.permaNonoList.push(prefs.noNoList.splice(prefs.noNoList.length - 1, 1))
+          userData[msg.author.id].nonoListCount = 0;
+          userData[msg.author.id].messagesSent = 0;
+          userData[msg.author.id].gibbyCommands = 0;
+          userData[msg.author.id].memesSubmitted = 0;
+          return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`okay <@${msg.author.id}> is now on the ***Permanent No No List.***`))
+
+        }
+        fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`okay <@${msg.author.id}> is now on the No No List.`).then(() => msg.author.send("**You have committed war crimes upon the land of Gibby**\n in order to be forgiven, you must recite this prayer to everyone in #general:\n*i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes*")))
+        return msg.reply("You've exceeded the rate limit for gibby commands of 12 commands/min (1 command every 5 secs), you've been placed on the nono list and have been deducted 24 gibby commands (48xp).")
+      }
+      messageBatchTotal++;
+    }
+    if (sleep.isSleeping && msg.channel.name !== 'gibby-test' && !prefs.battleMode) return msg.channel.send('💤');
+    if ((msg.channel.name === 'trading-bot' || msg.channel.name === 'gibby-test') && /trading-post/i.test(msg.toString())) {
+      const { handleTradingPostCommand } = require('./trading-post');
+      return handleTradingPostCommand(msg, client);
     }
     if (/chat/i.test(msg.toString())) {
       let lineBegin = msg.toString().indexOf('gibby chat') + 5;
@@ -209,12 +240,19 @@ client.on('message', msg => {
       })
     }
     if (/praise/i.test(msg.toString())) msg.react('✨')
-    if (prefs.testMode) {
-      if (msg.channel.name !== 'gibby-test') return msg.reply("I'm in test mode right now, sorry for the inconvenience");
-    }
     if (/nono/ig.test(msg.toString()) && /list/ig.test(msg.toString()) && msg.member.isAdmin()) {
       if (msg.mentions.users.size > 0) {
         prefs.noNoList.push(msg.mentions.users.first().id);
+        if (!userData[msg.mentions.users.first().id].nonoListCount) userData[msg.mentions.users.first().id].nonoListCount = 0;
+        userData[msg.mentions.users.first().id].nonoListCount++;
+        if (userData[msg.mentions.users.first().id].nonoListCount >= 5) {
+          prefs.permaNonoList.push(prefs.noNoList.splice(prefs.noNoList.length - 1, 1))
+          userData[msg.mentions.users.first().id].nonoListCount = 0;
+          userData[msg.mentions.users.first().id].messagesSent = 0;
+          userData[msg.mentions.users.first().id].gibbyCommands = 0;
+          userData[msg.mentions.users.first().id].memesSubmitted = 0;
+          return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`okay <@${msg.mentions.users.first().id}> is now on the ***Permanent No No List.***`))
+        }
         return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`okay <@${msg.mentions.users.first().id}> is now on the No No List.`).then(() => msg.mentions.users.first().send("**You have committed war crimes upon the land of Gibby**\n in order to be forgiven, you must recite this prayer to everyone in #general:\n*i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes*")))
       }
     }
@@ -245,6 +283,10 @@ client.on('message', msg => {
         let newQuote = msg.toString().slice(msg.toString().indexOf('addQuote') + 8);
         quotes.push(newQuote.trim())
         return fs.writeFile("quotes.json", JSON.stringify(quotes, null, 2), () => msg.reply(`okay I'll remember your quote "${newQuote}"`))
+      }
+      if (/testMode/i.test(msg.toString())) {
+        prefs.testMode = !prefs.testMode;
+        return fs.writeFile("prefs.json", JSON.stringify(prefs, null, 2), () => msg.reply(`Preferences saved. Test Mode is now ${prefs.testMode ? 'on' : 'off'}`))
       }
     }
     if (/quote/i.test(msg.toString())) {
@@ -366,8 +408,9 @@ client.on('message', msg => {
       }
       return msg.reply(`you rolled ${rolls.join(', ')}`)
     }
-    if (/(dining locations)|(im hungry)|(i'm hungry)/i.test(msg.toString())) {
+    if (/(im hungry)|(i\x27m hungry)/i.test(msg.toString())) {
       // if (!msg.member.isAdmin() && msg.channel.name !== 'gibby-test') return msg.reply("the Dining Locations feature is currently under maintenence, sorry for the inconveinience")
+      if (Math.random() < 0.01) return msg.reply("Hi hungry, I'm Gibby");
       return getDiningLocationsEmbed(msg).then(embed => msg.channel.send(embed), err => console.log(err));
     }
     if (/draw/i.test(msg.toString())) {
@@ -390,28 +433,39 @@ client.on('message', msg => {
     if (/gimme my stats/i.test(msg.toString())) {
       if (!userData[msg.author.id]) return msg.reply("Sorry looks like I don't have any of your data");
       let statsEmbed = new Discord.MessageEmbed().setTitle(`${msg.member.displayName} Stats`);
-      statsEmbed.addField("Total Messages", userData[msg.author.id].messagesSent);
-      statsEmbed.addField("Gibby Commands", userData[msg.author.id].gibbyCommands);
-      statsEmbed.addField("XP", userData[msg.author.id].xp);
+      statsEmbed.addField("Total Messages", userData[msg.author.id].messagesSent || 0);
+      statsEmbed.addField("Gibby Commands", userData[msg.author.id].gibbyCommands || 0);
+      statsEmbed.addField("Memes Submitted", userData[msg.author.id].memesSubmitted || 0);
+      statsEmbed.addField("XP", getUserXp(userData[msg.author.id]));
+      userData[msg.author.id].gibbyCommands--;
       return msg.reply(statsEmbed);
     }
     if (/leaderboard/i.test(msg.toString())) {
-      let sortedUsers = Object.keys(userData).map(id => ({ ...userData[id], id })).sort((a, b) => b.xp - a.xp);
+      let sortedUsers = Object.keys(userData).map(id => ({ ...userData[id], id })).map(u => ({ ...u, xp: getUserXp(u) })).sort((a, b) => b.xp - a.xp);
       let leaderEmbed = new Discord.MessageEmbed().setTitle("Gibby XP Leaderboard").setColor("#f5a142");
       sortedUsers.slice(0,5).forEach((user, i) => {
         leaderEmbed.addField(`${i + 1}) ${msg.guild.members.cache.get(user.id).displayName}`, user.xp);
       })
+      userData[msg.author.id].gibbyCommands--;
       return msg.channel.send(leaderEmbed);
+    }
+    if (/store/i.test(msg.toString())) {
+      return msg.reply('here you go... https://shop.spreadshirt.com/the-gibby-bot');
+    }
+    if (/sendMessage/.test(msg.toString()) && msg.member.roles.cache.get('744719819567267851') && msg.channel.name === 'gibby-test') {
+      return client.channels.cache.find(channel => channel.name === 'announcements').send(`@everyone ${msg.toString().slice(msg.toString().indexOf('sendMessage') + 12)}`);
     }
     if (/help/i.test(msg.toString())) {
       const helpEmbed = require('./help');
       return msg.channel.send(helpEmbed);
     }
-    return prefs.callouts ?msg.reply('I hear your call...') : msg.channel.send('I hear your call...')
+    return prefs.callouts ? msg.reply('I hear your call...') : msg.channel.send('Gibby merch... you need it (hint: `gibby store`)')
   }
 
   if (messageBatchTotal >= MESSAGE_BATCH_SIZE) fs.writeFile("./data/user-data.json", JSON.stringify(userData, null, 2), (err) => err && console.error(err))
 })
+
+const getUserXp = (user) => (user.messagesSent || 0) + (user.gibbyCommands || 0) * 2 + (user.memesSubmitted || 0) * 10;
 
 client.login(process.env.TOKEN);
 

@@ -1,39 +1,55 @@
 {
   "310868403508346882": {
-    "messagesSent": 218,
-    "gibbyCommands": 10,
-    "xp": 238
+    "messagesSent": 2643,
+    "gibbyCommands": 172,
+    "xp": 837,
+    "commandIntStart": 1600094347674,
+    "commandsSinceInt": 3,
+    "memesSubmitted": 3
   },
   "363070784199065600": {
-    "messagesSent": 33,
-    "gibbyCommands": 0,
-    "xp": 33
+    "messagesSent": 215,
+    "gibbyCommands": 5,
+    "xp": 70,
+    "commandIntStart": 1599939898392,
+    "commandsSinceInt": 1
   },
   "177146597358960640": {
-    "messagesSent": 435,
-    "gibbyCommands": 39,
-    "xp": 523,
-    "memesSubmitted": null
+    "messagesSent": 5153,
+    "gibbyCommands": 347,
+    "xp": 1082,
+    "memesSubmitted": 11,
+    "commandIntStart": 1600098894841,
+    "commandsSinceInt": 1
   },
   "712330860468371518": {
-    "messagesSent": 94,
-    "gibbyCommands": 36,
-    "xp": 166
+    "messagesSent": 1558,
+    "gibbyCommands": 208,
+    "xp": 805,
+    "memesSubmitted": 5,
+    "commandIntStart": 1600099001066,
+    "commandsSinceInt": 1
   },
   "276088272403431426": {
-    "messagesSent": 108,
-    "gibbyCommands": 9,
-    "xp": 126
+    "messagesSent": 970,
+    "gibbyCommands": 125,
+    "xp": 436,
+    "memesSubmitted": 15,
+    "commandIntStart": 1600083446536,
+    "commandsSinceInt": 1
   },
   "438383824494395392": {
-    "messagesSent": 2,
-    "gibbyCommands": 0,
-    "xp": 2
+    "messagesSent": 357,
+    "gibbyCommands": 15,
+    "xp": 54,
+    "commandIntStart": 1600026595101,
+    "commandsSinceInt": 1
   },
   "204300442358775808": {
     "messagesSent": 0,
     "gibbyCommands": 0,
-    "xp": 0
+    "xp": 0,
+    "memesSubmitted": 2
   },
   "170680758531260416": {
     "messagesSent": 23,
@@ -41,100 +57,392 @@
     "xp": 27
   },
   "180833059778723842": {
-    "messagesSent": 36,
-    "gibbyCommands": 1,
-    "xp": 38
+    "messagesSent": 677,
+    "gibbyCommands": 3,
+    "xp": 57,
+    "commandIntStart": 1599703253532,
+    "commandsSinceInt": 1
   },
   "617504062564466688": {
-    "messagesSent": 8,
-    "gibbyCommands": 1,
-    "xp": 10
+    "messagesSent": 690,
+    "gibbyCommands": 28,
+    "xp": 122,
+    "commandIntStart": 1599883678760,
+    "commandsSinceInt": 1
   },
   "357353374204690436": {
-    "messagesSent": 26,
-    "gibbyCommands": 8,
-    "xp": 72,
-    "memesSubmitted": null
+    "messagesSent": 505,
+    "gibbyCommands": 59,
+    "xp": 182,
+    "memesSubmitted": 25,
+    "commandIntStart": 1600099115412,
+    "commandsSinceInt": 1
   },
   "233953637917917187": {
-    "messagesSent": 131,
-    "gibbyCommands": 14,
-    "xp": 159
+    "messagesSent": 1675,
+    "gibbyCommands": 62,
+    "xp": 311,
+    "memesSubmitted": 2,
+    "commandIntStart": 1600091732914,
+    "commandsSinceInt": 1
   },
   "305044708529405953": {
-    "messagesSent": 238,
-    "gibbyCommands": 35,
-    "xp": 308
+    "messagesSent": 1950,
+    "gibbyCommands": 185,
+    "xp": 799,
+    "memesSubmitted": 6,
+    "commandIntStart": 1600099171704,
+    "commandsSinceInt": 1
   },
   "85998009417998336": {
-    "messagesSent": 20,
-    "gibbyCommands": 0,
-    "xp": 20
+    "messagesSent": 91,
+    "gibbyCommands": 1,
+    "xp": 39,
+    "commandIntStart": 1599886044671,
+    "commandsSinceInt": 1
   },
   "468855125746909184": {
-    "messagesSent": 136,
-    "gibbyCommands": 5,
-    "xp": 146
+    "messagesSent": 821,
+    "gibbyCommands": 35,
+    "xp": 183,
+    "commandIntStart": 1600091567257,
+    "commandsSinceInt": 3,
+    "memesSubmitted": 1
   },
   "468225453522681856": {
-    "messagesSent": 171,
-    "gibbyCommands": 43,
-    "xp": 277,
-    "memesSubmitted": null
+    "messagesSent": 4992,
+    "gibbyCommands": 646,
+    "xp": 1847,
+    "memesSubmitted": 122,
+    "commandIntStart": 1600098799209,
+    "commandsSinceInt": 1
   },
   "204092526167195649": {
-    "messagesSent": 4,
-    "gibbyCommands": 2,
-    "xp": 8
+    "messagesSent": 5,
+    "gibbyCommands": 3,
+    "xp": 8,
+    "commandIntStart": 1599693046374,
+    "commandsSinceInt": 1
   },
   "688854574362132520": {
-    "messagesSent": 108,
-    "gibbyCommands": 9,
-    "xp": 126
+    "messagesSent": 2326,
+    "gibbyCommands": 234,
+    "xp": 504,
+    "memesSubmitted": 14,
+    "commandIntStart": 1600079154336,
+    "commandsSinceInt": 1
   },
   "731961552990896190": {
-    "messagesSent": 13,
-    "gibbyCommands": 0,
-    "xp": 13
+    "messagesSent": 102,
+    "gibbyCommands": 9,
+    "xp": 24,
+    "commandIntStart": 1600095090459,
+    "commandsSinceInt": 1
   },
   "460883558437879808": {
-    "messagesSent": 7,
+    "messagesSent": 10,
     "gibbyCommands": 0,
-    "xp": 7
+    "xp": 10
   },
   "193042232905957385": {
-    "messagesSent": 4,
+    "messagesSent": 14,
     "gibbyCommands": 0,
-    "xp": 4
+    "xp": 5
   },
   "254693303277191168": {
-    "messagesSent": 21,
+    "messagesSent": 0,
     "gibbyCommands": 0,
-    "xp": 21
+    "xp": 0,
+    "memesSubmitted": 0,
+    "commandIntStart": 1600099185829,
+    "commandsSinceInt": 1,
+    "nonoListCount": 0
   },
   "359115700507377664": {
-    "messagesSent": 7,
-    "gibbyCommands": 0,
-    "xp": 7
+    "messagesSent": 394,
+    "gibbyCommands": 8,
+    "xp": 55,
+    "commandIntStart": 1600049032354,
+    "commandsSinceInt": 1
   },
   "292058666163503105": {
-    "messagesSent": 1,
+    "messagesSent": 24,
     "gibbyCommands": 0,
-    "xp": 1
+    "xp": 16
   },
   "389107865882722306": {
-    "messagesSent": 11,
-    "gibbyCommands": 0,
-    "xp": 11
+    "messagesSent": 415,
+    "gibbyCommands": 1,
+    "xp": 36,
+    "commandIntStart": 1599969952841,
+    "commandsSinceInt": 1
   },
   "244552898011201546": {
-    "messagesSent": 43,
+    "messagesSent": 101,
     "gibbyCommands": 0,
-    "xp": 43
+    "xp": 48
   },
   "161637430540238849": {
+    "messagesSent": 132,
+    "gibbyCommands": 6,
+    "xp": 18,
+    "commandIntStart": 1600030234557,
+    "commandsSinceInt": 1
+  },
+  "537089245945397249": {
+    "messagesSent": 29,
+    "gibbyCommands": 14,
+    "memesSubmitted": 0,
+    "xp": 19,
+    "commandIntStart": 1600091198630,
+    "commandsSinceInt": 1
+  },
+  "320389035271127041": {
+    "messagesSent": 18,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 2
+  },
+  "601260133879644160": {
+    "messagesSent": 40,
+    "gibbyCommands": 5,
+    "memesSubmitted": 1,
+    "xp": 2,
+    "commandIntStart": 1599889095941,
+    "commandsSinceInt": 1
+  },
+  "338012957818748938": {
+    "messagesSent": 7,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 7
+  },
+  "192470492861562880": {
+    "messagesSent": 7,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 7
+  },
+  "159985870458322944": {
+    "messagesSent": 9,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 3
+  },
+  "543575973375901706": {
+    "messagesSent": 92,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 6
+  },
+  "690338007156654574": {
+    "messagesSent": 16,
+    "gibbyCommands": 2,
+    "memesSubmitted": 0,
+    "xp": 3,
+    "commandIntStart": 1599527973312,
+    "commandsSinceInt": 1
+  },
+  "177554437336858624": {
+    "messagesSent": 506,
+    "gibbyCommands": 13,
+    "memesSubmitted": 0,
+    "xp": 51,
+    "commandIntStart": 1600017382588,
+    "commandsSinceInt": 1
+  },
+  "487798010156285998": {
+    "messagesSent": 9,
+    "gibbyCommands": 7,
+    "memesSubmitted": 1,
+    "xp": 22,
+    "commandIntStart": 1599577094771,
+    "commandsSinceInt": 1
+  },
+  "457250554213564417": {
+    "messagesSent": 238,
+    "gibbyCommands": 11,
+    "memesSubmitted": 5,
+    "xp": 22,
+    "commandIntStart": 1599850615055,
+    "commandsSinceInt": 3
+  },
+  "414967427047227405": {
+    "messagesSent": 46,
+    "gibbyCommands": 2,
+    "memesSubmitted": 0,
+    "xp": 22,
+    "commandIntStart": 1600033392907,
+    "commandsSinceInt": 1
+  },
+  "300792291264692224": {
+    "messagesSent": 13,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 1
+  },
+  "416797697501036556": {
+    "messagesSent": 497,
+    "gibbyCommands": 4,
+    "memesSubmitted": 0,
+    "xp": 3,
+    "commandIntStart": 1600092584111,
+    "commandsSinceInt": 1
+  },
+  "394188849124999168": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 1
+  },
+  "551876735659016203": {
     "messagesSent": 11,
-    "gibbyCommands": 3,
-    "xp": 17
+    "gibbyCommands": 4,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599586689379,
+    "commandsSinceInt": 1
+  },
+  "540369711943254017": {
+    "messagesSent": 29,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599839782312,
+    "commandsSinceInt": 1
+  },
+  "397915145629728778": {
+    "messagesSent": 3,
+    "gibbyCommands": 2,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599877702880,
+    "commandsSinceInt": 2
+  },
+  "354728031505481728": {
+    "messagesSent": 3,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599680306345,
+    "commandsSinceInt": 1
+  },
+  "722857584801087538": {
+    "messagesSent": 7,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "751994947703668746": {
+    "messagesSent": 10,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "533392429240287258": {
+    "messagesSent": 18,
+    "gibbyCommands": 14,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "532899910190759946": {
+    "messagesSent": 2,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599954978717,
+    "commandsSinceInt": 1
+  },
+  "285263598991966209": {
+    "messagesSent": 14,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "659143017562898485": {
+    "messagesSent": 4,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "200062542985297920": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "364848440057790474": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "129691515764080640": {
+    "messagesSent": 4,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "90578615372111872": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "262807709865213952": {
+    "messagesSent": 29,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "569705817675137024": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "607293223798571008": {
+    "messagesSent": 16,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "696206577946066944": {
+    "messagesSent": 7,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "744309931154604093": {
+    "messagesSent": 2,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "403245891324215308": {
+    "messagesSent": 18,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "480179308447662092": {
+    "messagesSent": 1,
+    "gibbyCommands": 1,
+    "memesSubmitted": 0,
+    "xp": 0,
+    "commandIntStart": 1599953149228,
+    "commandsSinceInt": 1
+  },
+  "565982246629277726": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
+  },
+  "272498327319216129": {
+    "messagesSent": 1,
+    "gibbyCommands": 0,
+    "memesSubmitted": 0,
+    "xp": 0
   }
 }

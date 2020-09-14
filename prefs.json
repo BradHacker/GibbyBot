@@ -18,5 +18,11 @@
   "noNoList": [
     "204300442358775808"
   ],
-  "battleMode": false
+  "permaNonoList": [
+    [
+      "254693303277191168"
+    ]
+  ],
+  "battleMode": false,
+  "forceAwake": false
 }

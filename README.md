@@ -8,6 +8,11 @@ For help just say `gibby help`
 
 ## Changelog
 
+### v 0.6
+- Add 1% Chance Gibby Responds to *I'm Hungry* with *Hi Hungry, I'm Gibby*
+- Add command rate limiting (12 commands/min)
+- Add Permanent No No List
+
 ### v 0.5
 - Add BATTLE MODE
 - Change Covid Cases to Total Cases since Aug. 19th
