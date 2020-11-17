@@ -8,6 +8,14 @@ For help just say `gibby help`
 
 ## Changelog
 
+## v 0.7
+- Add horny command
+- Cap chatbot replies to 2000 characters to prevent Discord APi rejecting responses
+- Fix covid dashboard to parse the new updated layout
+- Fix leaderboard to handle missing nicknames in the cache (was causing crashes)
+- Change callout message
+- Add global server statistics
+
 ### v 0.6
 - Add 1% Chance Gibby Responds to *I'm Hungry* with *Hi Hungry, I'm Gibby*
 - Add command rate limiting (12 commands/min)

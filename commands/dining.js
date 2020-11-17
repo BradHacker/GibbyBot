@@ -36,23 +36,30 @@ const getDiningLocationsEmbed = (msg) => {
             menusChecked.push(event.name)
             let openTime = moment(event.startTime, 'hh:mm:ss')
             let closeTime = moment(event.endTime, 'hh:mm:ss')
+            // console.log(`${location.name} - ${openTime.toString()}\t${event.startTime}`);
             if (now.isBetween(openTime, closeTime)) {
               open = true;
               openMenu = event.name;
             }
-            hours.open = openTime.format('h:mm')
-            hours.close = closeTime.format('h:mm')
+            hours.open = openTime.format('h:mma')
+            hours.close = closeTime.format('h:mma')
           }
           if (event.exceptions) {
             event.exceptions.forEach((exception) => {
-              let openTime = moment(event.startTime, 'hh:mm:ss')
-              let closeTime = moment(event.endTime, 'hh:mm:ss')
-              if (now.isBetween(openTime, closeTime)) {
+              let exceptionStartDate = moment(exception.startDate, 'YYYY-MM-DD');
+              let exceptionEndDate = moment(exception.endDate, 'YYYY-MM-DD');
+              // console.log(`${location.name} Exception - ${now.isSame(exception.startDate, 'day')} Now: ${now.format('YYYY-MM-DD')} Start: ${exception.startDate} End: ${exception.endDate}`);
+              if (!now.isBetween(exceptionStartDate, exceptionEndDate, 'day', '[]')) return;
+              let eventOpenTime = moment(exception.startTime, 'hh:mm:ss')
+              let eventCloseTime = moment(exception.endTime, 'hh:mm:ss')
+              open = false;
+              if (now.isBetween(eventOpenTime, eventCloseTime, 'hour')) {
                 open = exception.open;
-                openMenu = open ? event.name : '';
-              };
-              hours.open = openTime.format('h:mm')
-              hours.close = closeTime.format('h:mm')
+                // console.log(`${location.name} - ${eventOpenTime.format('h:mm')}-${eventCloseTime.format('h:mm')}\t Now: ${now.format('h:mm')}`)
+              }
+              openMenu = open ? event.name : '';
+              hours.open = eventOpenTime.format('h:mma');
+              hours.close = eventCloseTime.format('h:mma');
             });
           }
         });
