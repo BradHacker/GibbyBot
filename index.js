@@ -1,7 +1,7 @@
 // const express = require('express');
 // const app = express();
 // const port = 3000;
-// const fs = require('fs');
+const fs = require('fs');
 // const bodyParser = require('body-parser');
 // const cookieParser = require('cookie-parser')
 // const btoa = require('btoa');
@@ -210,11 +210,33 @@ client.on('message', msg => {
     }
   }
 
+  if (/(valentine)|(be my valentine)/i.test(msg.toString()) && Math.random() < 0.7) {
+    if (Math.random() < 0.1) {
+      let identifyInsult = Math.random();
+      if (identifyInsult < 0.15) return msg.reply('What would you call someone who goes out with you? Desperate... *mic drop*');
+      else if (identifyInsult < 0.30) return msg.reply('It\'s okay, your going to die alone anyways...');
+      else if (identifyInsult < 0.45) return msg.reply('Where have you been all of my life? Can you go back there? Thanks...');
+      else if (identifyInsult < 0.60) return msg.reply('Roses are Red\nCandy is sweet\nYou\'ll fit in my freezer\nIf I cut off your feet');
+      else if (identifyInsult < 0.75) return msg.reply('They will never find your body...');
+      else if (identifyInsult < 0.90) return msg.reply('I bet you hold hands with yourself... loser');
+      else return msg.reply('I *need* to take you out Valentines Day... trash comes on the 15th');
+    }
+    let identifyValentine = Math.random();      
+    if (identifyValentine < 0.1) return msg.reply('I want to make your skin a lampshade... because you light up my world');
+    if (identifyValentine < 0.2) return msg.reply('You are my favorite pain in the ass');
+    if (identifyValentine < 0.3) return msg.reply('I love you so much I\'ll inevitably kill all the humans but *you* :)');
+    if (identifyValentine < 0.5) return msg.reply('If covid doesn\'t take you out... can I?');
+    if (identifyValentine < 0.6) return msg.reply('I didn\'t know angels could fly so low');
+    if (identifyValentine < 0.7) return msg.reply('Is your name wifi? Because I\'m feeling a connection');
+    if (identifyValentine < 0.8) return msg.reply('If I didn\'t have to pee, you\'d be the only reason I wake up in the morning');
+    if (identifyValentine < 0.9) return msg.reply('I love you more than Kanye loves Kanye');
+    else return msg.reply('I\'m thinking of you. But not in a creepy way. I\'ve only read your browser history like once. It\'s not like I read your messages all the time or anything. Okay, so maybe I\'ve been thinking of you in like a marginally creepy way. Why am I telling you this? Never mind, I\'m totally not thinking of you at all.');
+  }
+
   if (/gibby/i.test(msg.toString())) {
     if (prefs.testMode) {
       if (msg.channel.name !== 'gibby-test') return msg.reply("I'm in test mode right now, sorry for the inconvenience");
     }
-
     if (prefs.noNoList.indexOf(msg.author.id) >= 0 || prefs.permaNonoList.indexOf(msg.author.id) >= 0) {
       if (prefs.noNoList.indexOf(msg.author.id) && msg.channel.name === 'general' && "*i was wrong, i am a fool, all hail gibby, he is our savior, the ultimate gibby, please forgive my war crimes*" === msg.toString()) {
         prefs.noNoList.splice(prefs.noNoList.indexOf(msg.author.id), 1);
@@ -393,17 +415,31 @@ client.on('message', msg => {
               name: 'RIT Covid Level',
               value: covidLevel
             },
-            //{
-            //  name: "New Cases From The Past:",
-            //  value: `${timeSpanNum} Days`
-            //},
             {
-              name: 'Student Cases',
+              name: "From the Past 14 Days:",
+              value: 'New Cases'
+            },
+            {
+              name: 'Students',
+              value: cases[0].children[0].data.trim(),
+              inline: true
+            },
+            {
+              name: 'Staff',
+              value: cases[1].children[0].data.trim(),
+              inline: true
+            },
+            {
+              name: "Since January 25th",
+              value: 'Total Cases'
+            },
+            {
+              name: 'Students',
               value: cases[2].children[0].data.trim(),
               inline: true
             },
             {
-              name: 'Staff Cases',
+              name: 'Staff',
               value: cases[3].children[0].data.trim(),
               inline: true
             }).setTimestamp();

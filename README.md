@@ -8,6 +8,10 @@ For help just say `gibby help`
 
 ## Changelog
 
+## v 0.8
+- Add special valentine's messages
+- Fix Covid Dashboard
+
 ## v 0.7
 - Add horny command
 - Cap chatbot replies to 2000 characters to prevent Discord APi rejecting responses
