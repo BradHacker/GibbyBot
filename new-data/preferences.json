@@ -1,0 +1,6 @@
+{
+  "botRegex": "guppy",
+  "battleMode": false,
+  "awakeMessage": "Wazzzzuupppp!",
+  "mainChannel": "main"
+}
