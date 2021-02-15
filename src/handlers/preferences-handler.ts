@@ -3,6 +3,7 @@ import { Message } from 'discord.js';
 import { Preferences } from '../preferences';
 import { DataStore } from '../data-store';
 import { Handler } from './handler';
+import { chdir } from 'process';
 
 enum Commands {
   BATTLE_MODE,
@@ -12,6 +13,7 @@ enum Commands {
   MAIN_CHANNEL,
   ADD_MAGIC_8_BALL,
   TEST_MODE,
+  TEST_CHANNEL,
 }
 
 @injectable()
@@ -44,6 +46,16 @@ export class PreferencesHandler extends Handler {
         regex: /addMagic8Ball/,
         exec: this.handleAddMagic8Ball.bind(this),
       },
+      {
+        command: Commands.TEST_MODE,
+        regex: /testMode/,
+        exec: this.handleTestMode.bind(this),
+      },
+      {
+        command: Commands.TEST_CHANNEL,
+        regex: /testChannel/,
+        exec: this.handleTestChannel.bind(this),
+      },
     ];
   }
 
@@ -69,9 +81,13 @@ export class PreferencesHandler extends Handler {
 
   handleMainChannel(message: Message): Promise<Message | Message[]> {
     const newMainChannel = this.stripMessage(message, Commands.MAIN_CHANNEL);
+    const channel = message.guild.channels.cache.find((ch) => ch.name === newMainChannel);
+    if (channel === undefined) {
+      return message.reply(`Sorry, I couldn't find the channel named "${newMainChannel}"`);
+    }
     Preferences.mainChannel = newMainChannel;
     Preferences.savePreferences();
-    return message.reply(`Okay, the main channel is now "${newMainChannel}"`);
+    return message.reply(`Okay, the main channel is now ${channel}`);
   }
 
   handleAddMagic8Ball(message: Message): Promise<Message | Message[]> {
@@ -79,5 +95,30 @@ export class PreferencesHandler extends Handler {
     DataStore.magic8ballResponses.push(newMagic8Ball);
     DataStore.saveMagic8Ball();
     return message.reply(`Okay, added the magic 8 ball response "${newMagic8Ball}"`);
+  }
+
+  handleTestMode(message: Message): Promise<Message | Message[]> {
+    Preferences.testMode = !Preferences.testMode;
+    // Don't turn on test mode if our test channel doesn't exist
+    if (Preferences.testMode) {
+      const channel = message.guild.channels.cache.find((ch) => ch.name === Preferences.testChannel);
+      if (channel === undefined)
+        return message.reply(
+          `I can't turn on test mode because the test channel \`${Preferences.testChannel}\` doesn't exist. You can change that with the \`preferences testChannel\` command or create a channel with that name.`,
+        );
+    }
+    Preferences.savePreferences();
+    return message.reply(`Okay test mode is now ${Preferences.testMode ? '**ON**' : '**OFF**'}`);
+  }
+
+  handleTestChannel(message: Message): Promise<Message | Message[]> {
+    const newTestChannel = this.stripMessage(message, Commands.TEST_CHANNEL);
+    const channel = message.guild.channels.cache.find((ch) => ch.name === newTestChannel);
+    if (channel === undefined) {
+      return message.reply(`Sorry, I couldn't find the channel named "${newTestChannel}"`);
+    }
+    Preferences.mainChannel = newTestChannel;
+    Preferences.savePreferences();
+    return message.reply(`Okay, the main channel is now ${channel}`);
   }
 }

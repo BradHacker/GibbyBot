@@ -3,7 +3,11 @@
     "messagesSent": [
       {
         "channel": "810590272563314690",
-        "amount": 15
+        "amount": 38
+      },
+      {
+        "channel": "810746890156769331",
+        "amount": 6
       }
     ],
     "gibbyCommands": [
@@ -12,8 +16,17 @@
         "commands": [
           {
             "type": 0,
-            "amount": 4
+            "amount": 9
           },
+          {
+            "type": 1,
+            "amount": 15
+          }
+        ]
+      },
+      {
+        "channel": "810746890156769331",
+        "commands": [
           {
             "type": 1,
             "amount": 2
@@ -21,7 +34,20 @@
         ]
       }
     ],
-    "commandsIntStart": 0,
-    "commandsSinceInt": 0
+    "commandsIntStart": 1613421791899,
+    "commandsSinceInt": 2,
+    "nonoListCount": 1
+  },
+  "712330860468371518": {
+    "messagesSent": [
+      {
+        "channel": "810590272563314690",
+        "amount": 1
+      }
+    ],
+    "gibbyCommands": [],
+    "commandsIntStart": 1613421775992,
+    "commandsSinceInt": 1,
+    "nonoListCount": 0
   }
 }

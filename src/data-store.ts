@@ -3,6 +3,7 @@ import { Quote, Meme, Magic8BallResponse, UserData, UserDataMap, CommandType } f
 import { Utility } from './utility';
 import { Logger } from './logger';
 import { Preferences } from './preferences';
+import { parseConfigFileTextToJson } from 'typescript';
 
 export class DataStore {
   public static quotes: Quote[] = [];
@@ -49,6 +50,7 @@ export class DataStore {
         gibbyCommands: [],
         commandsIntStart: 0,
         commandsSinceInt: 0,
+        nonoListCount: 0,
       };
     }
   }
@@ -73,6 +75,24 @@ export class DataStore {
       });
     } else {
       this.userData[message.author.id].messagesSent[channelIndex].amount++;
+    }
+    if (
+      !this.userData[message.author.id].commandsIntStart ||
+      Date.now().valueOf() - new Date(this.userData[message.author.id].commandsIntStart).valueOf() > 60000
+    ) {
+      this.userData[message.author.id].commandsIntStart = Date.now().valueOf();
+      this.userData[message.author.id].commandsSinceInt = 0;
+    }
+    this.userData[message.author.id].commandsSinceInt++;
+    if (this.userData[message.author.id].commandsSinceInt >= 12) {
+      DataStore.nonoList.push(message.author.id);
+      DataStore.saveNonoList();
+      this.userData[message.author.id].nonoListCount++;
+      message.reply(
+        "You've exceeded the rate limit for gibby commands of 12 commands/min (1 command every 5 secs), you've been placed on the nono list and have been deducted 48xp.",
+      );
+    } else if (this.userData[message.author.id].commandsSinceInt > 10) {
+      message.reply("careful there bud, you're getting awfully close to the rate limit.");
     }
     this.saveIfMessageBatchIsFull();
   }

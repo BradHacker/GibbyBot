@@ -75,4 +75,5 @@ export interface UserData {
   gibbyCommands: CommandStatsMap[];
   commandsIntStart: number;
   commandsSinceInt: number;
+  nonoListCount: number;
 }

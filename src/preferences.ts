@@ -6,6 +6,9 @@ export class Preferences {
   static battleMode: boolean = false;
   static awakeMessage: string = 'Good morning gamers!';
   static mainChannel: string = 'general';
+  static testMode: boolean = false;
+  static testChannel: string = 'guppy-test';
+
   static messageBatchSize: number = 3;
 
   public static loadPreferences(): void {
@@ -27,6 +30,8 @@ export class Preferences {
       awakeMessage: Preferences.awakeMessage,
       mainChannel: Preferences.mainChannel,
       messageBatchSize: Preferences.messageBatchSize,
+      testMode: Preferences.testMode,
+      testChannel: Preferences.testChannel,
     });
   }
 }

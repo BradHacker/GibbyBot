@@ -2,6 +2,8 @@
   "botRegex": "guppy",
   "battleMode": false,
   "awakeMessage": "good morning gamers",
-  "mainChannel": "main",
-  "messageBatchSize": 3
+  "mainChannel": "general",
+  "messageBatchSize": 3,
+  "testMode": false,
+  "testChannel": "guppy-test"
 }

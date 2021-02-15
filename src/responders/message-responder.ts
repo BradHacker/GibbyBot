@@ -31,7 +31,8 @@ export class MessageResponder {
     } else {
       // Remove user from nono list if they recite the prayer
       if (message.toString() === NONO_LIST_PRAYER) {
-        // TODO: Take user off of nono list
+        DataStore.nonoList.splice(DataStore.nonoList.indexOf(message.author.id), 1);
+        DataStore.saveNonoList();
         message.react('✨');
         return message.reply('I forgive you my child, take my blessing and go in peace.');
       }
@@ -39,6 +40,8 @@ export class MessageResponder {
 
     // ignore anybody not talking to gibby
     if (!Preferences.botRegex.test(message.toString())) return Promise.reject();
+
+    // Deny access when test mode is on
 
     if (Utility.onNonoList(message.author)) {
       return message.reply(
