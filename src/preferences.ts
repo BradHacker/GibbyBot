@@ -1,4 +1,3 @@
-import { readFileSync, writeFile } from 'fs';
 import { Logger } from './logger';
 import { Utility } from './utility';
 
@@ -7,6 +6,7 @@ export class Preferences {
   static battleMode: boolean = false;
   static awakeMessage: string = 'Good morning gamers!';
   static mainChannel: string = 'general';
+  static messageBatchSize: number = 3;
 
   public static loadPreferences(): void {
     let preferences = Utility.loadDataFile('new-data/preferences.json');
@@ -26,6 +26,7 @@ export class Preferences {
       battleMode: Preferences.battleMode,
       awakeMessage: Preferences.awakeMessage,
       mainChannel: Preferences.mainChannel,
+      messageBatchSize: Preferences.messageBatchSize,
     });
   }
 }

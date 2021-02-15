@@ -47,3 +47,32 @@ export interface Meme {
   submittedAt?: Date;
   submittedBy?: Snowflake | string;
 }
+
+export interface UserDataMap {
+  [key: string]: UserData;
+}
+
+export interface MessageStatsMap {
+  channel: Snowflake;
+  amount: number;
+}
+
+export enum CommandType {
+  ADMIN,
+  FUN,
+  INFO,
+}
+export interface CommandStatsMap {
+  channel: Snowflake;
+  commands: {
+    type: CommandType;
+    amount: number;
+  }[];
+}
+
+export interface UserData {
+  messagesSent: MessageStatsMap[];
+  gibbyCommands: CommandStatsMap[];
+  commandsIntStart: number;
+  commandsSinceInt: number;
+}

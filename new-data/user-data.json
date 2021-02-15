@@ -1,0 +1,27 @@
+{
+  "177146597358960640": {
+    "messagesSent": [
+      {
+        "channel": "810590272563314690",
+        "amount": 15
+      }
+    ],
+    "gibbyCommands": [
+      {
+        "channel": "810590272563314690",
+        "commands": [
+          {
+            "type": 0,
+            "amount": 4
+          },
+          {
+            "type": 1,
+            "amount": 2
+          }
+        ]
+      }
+    ],
+    "commandsIntStart": 0,
+    "commandsSinceInt": 0
+  }
+}

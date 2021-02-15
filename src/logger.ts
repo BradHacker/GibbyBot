@@ -1,7 +1,7 @@
 export class Logger {
   static Reset = '\x1b[0m';
   static Bright = '\x1b[1m';
-  static  Dim = '\x1b[2m';
+  static Dim = '\x1b[2m';
   static Underscore = '\x1b[4m';
   static Blink = '\x1b[5m';
   static Reverse = '\x1b[7m';
@@ -25,15 +25,19 @@ export class Logger {
   static BgCyan = '\x1b[46m';
   static BgWhite = '\x1b[47m';
 
+  private static currentDateTime(): string {
+    return new Date().toISOString();
+  }
+
   static info(...message: string[]): void {
-    console.info(Logger.FgCyan + '[INFO] | ' + message.join(', ') + Logger.Reset);
+    console.info(Logger.FgCyan + this.currentDateTime() + ' [INFO] | ' + message.join(', ') + Logger.Reset);
   }
 
   static error(...message: string[]): void {
-    console.error(Logger.FgRed + '[ERROR] | ' + message.join(', ')  + Logger.Reset);
+    console.error(Logger.FgRed + this.currentDateTime() + ' [ERROR] | ' + message.join(', ') + Logger.Reset);
   }
 
   static debug(...message: string[]): void {
-    console.log(Logger.FgWhite + '[DEBUG] | ' + message.join(', ')  + Logger.Reset);
+    console.log(Logger.FgWhite + this.currentDateTime() + ' [DEBUG] | ' + message.join(', ') + Logger.Reset);
   }
 }
